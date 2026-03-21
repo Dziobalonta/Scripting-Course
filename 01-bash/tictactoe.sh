@@ -24,7 +24,7 @@ main() {
     i=0
     while [ $i -lt 9 ]
     do
-        clear
+        # clear
         print_title
         echo
         print_board
@@ -39,27 +39,26 @@ main() {
             piece="o"
         fi
         
-
-        read -p "Enter a number (1-9):" number
         echo
+        read -p "Enter a number (1-9):" number
 
         # Check if correct input
-        if [ $number -ge 1 ] && [ $number -le 9 ]; then
-            echo "Input: $number is valid."
-        else 
-            echo "Input: $number is invalid."
-            continue # Restart loop
+        if ! [[ "$number" =~ ^[1-9]$ ]]; then # =~ regex checks if number and in range ^[1-9]$
+            echo "Invalid input! Enter number (1-9)."
+            sleep 1
+            continue
         fi
 
-        # Place a piece on a board
-        for j in "${!board[@]}" # !-by indexes
-        do
-            if [ "${board[$j]}" -eq "$number" ]; then
-                board[$j]="$piece"
-            fi
-            echo "${board[$j]}"
-        done
-        
+        # Check if field on board is free
+        index=$((number - 1))
+        if ! [[ "${board[$index]}" =~ ^[0-9]$ ]]; then
+            echo "Field already taken!"
+            sleep 1
+            continue
+        fi
+
+        # Place piece
+        board[$index]="$piece"        
         ((i++))
 
     done
