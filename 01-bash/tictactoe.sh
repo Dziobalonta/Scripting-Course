@@ -20,11 +20,47 @@ print_title() {
     echo "================"
 }
 
+check_win(){
+    local wins=( # by indexes not field numbering
+        "0 1 2"
+        "3 4 5"
+        "6 7 8"
+        "0 3 6"
+        "1 4 7"
+        "2 5 8"
+        "0 4 8"
+        "2 4 6"
+    )
+
+    for combination in "${wins[@]}"; do
+        read -r a b c <<< "$combination"
+    
+        local board_a="${board[$a]}"
+        local board_b="${board[$b]}"
+        local board_c="${board[$c]}"
+
+        if [[  "$board_a" =~ ^[xo]$ ]] && # check if "x" or "o"
+        [[  "$board_a" =~ "$board_b" ]] &&
+        [[  "$board_a" =~ "$board_c" ]]; then
+
+            clear
+            print_title
+            echo
+            print_board
+            echo
+            echo "Wygrywa $board_a!"
+            return 0
+            
+        fi
+    done
+
+    return 1
+}
+
 main() {
     i=0
-    while [ $i -lt 9 ]
-    do
-        # clear
+    while [ $i -lt 9 ]; do
+        clear
         print_title
         echo
         print_board
@@ -58,12 +94,23 @@ main() {
         fi
 
         # Place piece
-        board[$index]="$piece"        
+        board[$index]="$piece"
+
+        # Check win
+        if check_win; then
+            exit 0
+        fi
+
         ((i++))
-
     done
-
-
+    
+    # Handle tie situation
+    clear
+    print_title
+    echo
+    print_board
+    echo
+    echo "It's a Tie!"
 }
 
 main "$@"
