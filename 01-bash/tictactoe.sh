@@ -1,4 +1,5 @@
 #!/bin/bash
+export TERM=xterm
 
 piece=x
 board=("1" "2" "3"
@@ -40,15 +41,15 @@ check_win(){
         local board_c="${board[$c]}"
 
         if [[  "$board_a" =~ ^[xo]$ ]] && # check if "x" or "o"
-        [[  "$board_a" =~ "$board_b" ]] &&
-        [[  "$board_a" =~ "$board_c" ]]; then
+        [[  "$board_a" == "$board_b" ]] &&
+        [[  "$board_a" == "$board_c" ]]; then
 
             clear
             print_title
             echo
             print_board
             echo
-            echo "Wygrywa $board_a!"
+            echo "$board_a wins!"
             return 0
             
         fi
@@ -103,7 +104,7 @@ main() {
 
         ((i++))
     done
-    
+
     # Handle tie situation
     clear
     print_title
