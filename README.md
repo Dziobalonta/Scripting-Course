@@ -1,17 +1,10 @@
-**Zadanie 1** Docker
+**Zadanie 1** Tic Tac Toe
 
-:white_check_mark: 3.0 Zaimplementuj funkcję isSorted, która sprawdza czy dana funkcja jest posortowana zgodnie z podaną funkcją porównawczą [Link do commita 1](https://github.com/kprzystalski/)
+:white_check_mark: 3.0 - działa w trybie gry turowej [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob/054bcc7636d31df4643780136e3f0efcea0dc3f9/01-bash/tictactoe.sh)
 
-:white_check_mark: 3.5 Zaimplementuj funkcję, która zsumuje liczby po wierszach z trzech list na wejściu; wykorzystaj funkcję sprowadzi funkcję z trzema argumentami, do funkcji z dwoma [Link do commita2 ](https://github.com/kprzystalski/)
+:x: 4.0 - pozwala na zapis i odtwarzanie przerwanej gry (save game)
 
-:x: 4.0 Zaimplementuj funkcję setHead, która doda element na początku listy [Link do commita 3](https://github.com/kprzystalski/)
+:x: 5.0 - pozwala na grę z komputerem
 
-:x: 4.5 Zaimplementuj funkcję append, która doda element we wskazanym miejscu w liście [Link do commita 4](https://github.com/kprzystalski/)
+Kod: [Link do zadania](https://github.com/Dziobalonta/Scripting-Course/blob/main/01-bash/tictactoe.sh)
 
-:x: 5.0 Zaimplementuj funkcję, która policzy kwadrat liczb z dwóch list (po wierszach) za pomocą funkcji map oraz funkcji anonimowej [Link do commita 5](https://github.com/kprzystalski/)
-
-
-Kod: [Link do zadania 1](https://hub.docker.com/kprzystalski/)
-
-
-https://github.com/user-attachments/assets/filmik/
