@@ -77,13 +77,14 @@ load_game() {
 main() {
     clear
     print_title
+    read -p "Play against Computer? (y/n): " vs_pc
 
     i=0
 
     if [[ -f tictactoe.save ]]; then
         read -p  "Detected saved game! Continue? (y/n): " choice
 
-        if [[ "$choice" == "y" ]]; then
+        if [[ "$choice" =~ ^[yY]$ ]]; then
             load_game
         else
             i=0
@@ -101,38 +102,66 @@ main() {
         
         # Switch sides logic
         if (( i % 2 == 0 )); then
-            echo "X's turn!"
+            if [[ "$vs_pc" =~ ^[yY]$ ]]; then
+                echo "X's turn! (Player)"
+            else
+                echo "X's turn!"
+            fi
             piece="x"
+            is_computer=false # X is always a player
         else
-            echo "O's turn!"
+
+            if [[ "$vs_pc" =~ ^[yY]$ ]]; then
+                is_computer=true
+                echo "O's turn! (Computer)"
+            else
+                is_computer=false
+                echo "O's turn!"
+            fi
             piece="o"
         fi
         
         echo
-        read -p "Enter a number (1-9) or \"s\" to save and exit:" number
-
-        if [[ "$number" == "s" ]]; then
-            save_game
-            exit 0
-        fi
-
-        # Check if correct input
-        if ! [[ "$number" =~ ^[1-9]$ ]]; then # =~ regex checks if number and in range ^[1-9]$
-            echo "Invalid input! Enter number (1-9)."
+        if [[ "$is_computer" == true ]]; then
+            # Computer's logic
+            echo "Computer is thinking..."
             sleep 1
-            continue
-        fi
 
-        # Check if field on board is free
-        index=$((number - 1))
-        if ! [[ "${board[$index]}" =~ ^[0-9]$ ]]; then
-            echo "Field already taken!"
-            sleep 1
-            continue
-        fi
+            while true; do
+                index=$(( RANDOM % 9))
 
-        # Place piece
-        board[$index]="$piece"
+                if [[ "${board[$index]}" =~ ^[1-9]$ ]]; then
+                    board[$index]="$piece"
+                    break    
+                fi
+            done
+        else
+            # Player's logic
+            read -p "Enter a number (1-9) or \"s\" to save and exit:" number
+
+            if [[ "$number" == "s" ]]; then
+                save_game
+                exit 0
+            fi
+
+            # Check if correct input
+            if ! [[ "$number" =~ ^[1-9]$ ]]; then # =~ regex checks if number and in range ^[1-9]$
+                echo "Invalid input! Enter number (1-9)."
+                sleep 1
+                continue
+            fi
+
+            # Check if field on board is free
+            index=$((number - 1))
+            if ! [[ "${board[$index]}" =~ ^[0-9]$ ]]; then
+                echo "Field already taken!"
+                sleep 1
+                continue
+            fi
+
+            # Place piece
+            board[$index]="$piece"
+        fi
 
         # Check win
         if check_win; then
