@@ -21,7 +21,7 @@ print_title() {
     echo "================"
 }
 
-check_win(){
+check_win() {
     local wins=( # by indexes not field numbering
         "0 1 2"
         "3 4 5"
@@ -58,8 +58,40 @@ check_win(){
     return 1
 }
 
+save_game() {
+    echo "$i ${board[*]}" > tictactoe.save
+    echo "Game has been saved!"
+    sleep 1
+}
+
+load_game() {
+    if [[ -f tictactoe.save ]]; then
+        read -r saved_i saved_board < tictactoe.save
+        i=$saved_i
+        board=($saved_board)
+        echo "Loaded saved game!"
+        sleep 1  
+    fi
+}
+
 main() {
+    clear
+    print_title
+
     i=0
+
+    if [[ -f tictactoe.save ]]; then
+        read -p  "Detected saved game! Continue? (y/n): " choice
+
+        if [[ "$choice" == "y" ]]; then
+            load_game
+        else
+            i=0
+        fi
+    fi
+    clear
+
+
     while [ $i -lt 9 ]; do
         clear
         print_title
@@ -77,7 +109,12 @@ main() {
         fi
         
         echo
-        read -p "Enter a number (1-9):" number
+        read -p "Enter a number (1-9) or \"s\" to save and exit:" number
+
+        if [[ "$number" == "s" ]]; then
+            save_game
+            exit 0
+        fi
 
         # Check if correct input
         if ! [[ "$number" =~ ^[1-9]$ ]]; then # =~ regex checks if number and in range ^[1-9]$
