@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "@minecraft/server": "^2.7.0-beta.1.26.10-stable",
+    "@minecraft/server-ui": "^2.1.0-beta.1.26.10-stable"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "shx": "^0.3.4"
+  },
+  "scripts": {
+    "deploy": "shx mkdir -p \"%APPDATA%/Minecraft Bedrock/Users/Shared/games/com.mojang/development_behavior_packs/CastleScript\" && shx cp -rf manifest.json scripts \"%APPDATA%/Minecraft Bedrock/Users/Shared/games/com.mojang/development_behavior_packs/CastleScript/\"",
+    "deploy:docker": "shx mkdir -p /out && shx cp -rf manifest.json scripts /out/",
+    "watch": "nodemon --watch scripts --watch manifest.json --ext js,json --exec \"npm run deploy\""
+  }
+}
