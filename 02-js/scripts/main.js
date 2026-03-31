@@ -7,8 +7,8 @@ world.afterEvents.playerSpawn.subscribe((event) => {
         const player = event.player;
 
         system.run(() => {
-            world.sendMessage(`[Castle Script] Hello World, ${player.name}!
-                Type !castle to run the script.`);
+            world.sendMessage(`[Castle Script] Hello World, ${player.name}!`);
+            world.sendMessage(`Type !castle to run the script.`)
         });
     }
 }); 
@@ -18,8 +18,10 @@ world.afterEvents.chatSend.subscribe((event) => {
         const player = event.sender;
 
         system.run(() => {
-            BuildCastle(player);
             world.sendMessage(`[Castle Script] Starting build for ${player.name}...`);
+
+            BuildCastle(player);
+
         });
     }
 });
@@ -28,18 +30,18 @@ function BuildCastle(player) {
     // could be normal World, Nether or End
     const dimension = player.dimension;
 
-    const player_x = Math.floor(player.location.x) + 10 // castle spawns in front of the player 
-    const player_y = Math.floor(player.location.y)
-    const player_z = Math.floor(player.location.z)
+    const player_x = Math.floor(player.location.x) + 10; // castle spawns in front of the player 
+    const player_y = Math.floor(player.location.y);
+    const player_z = Math.floor(player.location.z);
 
-    world.sendMessage(`Player stands at (${player_x}, ${player_y}, ${player_z})`)
+    world.sendMessage(`Player stands at (${player_x}, ${player_y}, ${player_z})`);
 
-    const castle_width = 10 
-    const castle_length = 10
-    const castle_hight = 5
+    const castle_width = 10;
+    const castle_length = 10;
+    const castle_hight = 5;
 
-    const cobble = "minecraft:cobblestone"
-    const stone = "minecraft:stone"
+    const cobble = "minecraft:cobblestone";
+    const stone = "minecraft:stone";
 
     // Floor
     for(let x = 0;  x < castle_length; x++) {
@@ -95,5 +97,56 @@ function BuildCastle(player) {
             
         }
     }
+    // Moat
+    const moat_width = 3;
+    const moat_depth = 3;
+
+    const water = "minecraft:water";
+    const air = "minecraft:air";
+
+    for (let x = -moat_width; x <= castle_length + moat_width; x++) {
+        for (let z = -moat_width; z <= castle_width + moat_width; z++) {
+
+            if (x < 0 || x > castle_length || z < 0 || z > castle_width) {
+                
+                // clear above the moat
+                dimension.getBlock({
+                    x: player_x + x,
+                    y: player_y,
+                    z: player_z + z
+               })?.setType(air);
+
+               for (let d = 0; d < moat_depth; d++) {
+                    dimension.getBlock({
+                        x: player_x + x,
+                        y: player_y - d - 1,
+                        z: player_z + z
+                    })?.setType(water);
+               }   
+            } 
+        }  
+    }
+
+    // Bridge
+    const bridge_width = 3;
+    const planks = "minecraft:oak_planks";
+    const bridge_center = Math.floor(castle_length / 2);
+    const building_starting_point_x = bridge_center - Math.floor(bridge_width / 2);
+
+    for (let z = -moat_width; z < 0; z++) {
+        
+        for (let w = 0; w < bridge_width; w++) {
+            dimension.getBlock({
+                        x: player_x + building_starting_point_x + w,
+                        y: player_y - 1,
+                        z: player_z + z
+            })?.setType(planks);
+        }
+        
+    }
+
+
+
+
     
 }
