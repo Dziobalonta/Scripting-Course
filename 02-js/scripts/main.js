@@ -36,9 +36,9 @@ function BuildCastle(player) {
 
     world.sendMessage(`Player stands at (${player_x}, ${player_y}, ${player_z})`);
 
-    const castle_width = 10;
-    const castle_length = 10;
-    const castle_hight = 5;
+    const castle_width = 20;
+    const castle_length = 20;
+    const castle_hight = 7;
 
     const cobble = "minecraft:cobblestone";
     const stone = "minecraft:stone";
@@ -128,7 +128,7 @@ function BuildCastle(player) {
     }
 
     // Bridge
-    const bridge_width = 3;
+    const bridge_width = 4;
     const planks = "minecraft:oak_planks";
     const bridge_center = Math.floor(castle_length / 2);
     const building_starting_point_x = bridge_center - Math.floor(bridge_width / 2);
@@ -143,10 +143,73 @@ function BuildCastle(player) {
             })?.setType(planks);
         }
         
+    } 
+    
+    // Gate
+    const gate_height = 5;
+    const bars = "minecraft:iron_bars"
+
+    for (let y = 0; y < gate_height; y++) {
+        
+        for (let x = 0; x < bridge_width; x++) {
+            let block = dimension.getBlock({
+                        x: player_x + building_starting_point_x + x,
+                        y: player_y + y,
+                        z: player_z
+            })
+            block.setType(air);
+
+            if (y === gate_height - 1) {
+                if (x === 0 || x === bridge_width - 1) {
+                    block?.setType(cobble); 
+                } else {
+                    block?.setType(bars);             
+                }
+            }
+
+            if (y === gate_height - 2) {
+                    block?.setType(bars); 
+            }
+
+        }
+        
     }
 
+    // Towers
+    const tower_radius = 2; 
+    const tower_height = Math.ceil(castle_hight / 2); 
 
+    const corners = [
+        { x: 0, z: 0 },
+        { x: castle_length, z: 0 },
+        { x: 0, z: castle_width },
+        { x: castle_length, z: castle_width }
+    ];
 
+    for (const corner of corners) {
+        for (let y = castle_hight - 1; y <= tower_height + castle_hight; y++) {
 
-    
+            for (let x = -tower_radius; x <= tower_radius; x++) {
+                for (let z = -tower_radius; z <= tower_radius; z++) {
+                    
+
+                    if (Math.abs(x) === tower_radius || Math.abs(z) === tower_radius) {
+                        dimension.getBlock({
+                            x: player_x + corner.x + x,
+                            y: player_y + y,
+                            z: player_z + corner.z + z
+                        })?.setType(cobble);
+                    }
+
+                    if (y === castle_hight - 1) {
+                        dimension.getBlock({
+                            x: player_x + corner.x + x,
+                            y: player_y + y,
+                            z: player_z + corner.z + z
+                        })?.setType(cobble);
+                    }
+                }
+            }
+        }
+    }
 }
