@@ -36,7 +36,7 @@ function BuildCastle(player) {
 
     world.sendMessage(`Player stands at (${player_x}, ${player_y}, ${player_z})`);
 
-    const castle_width = 20;
+    const castle_width = 25;
     const castle_length = 20;
     const castle_hight = 7;
 
@@ -98,7 +98,7 @@ function BuildCastle(player) {
         }
     }
     // Moat
-    const moat_width = 3;
+    const moat_width = 5;
     const moat_depth = 3;
 
     const water = "minecraft:water";
@@ -128,7 +128,7 @@ function BuildCastle(player) {
     }
 
     // Bridge
-    const bridge_width = 4;
+    const bridge_width = 5;
     const planks = "minecraft:oak_planks";
     const bridge_center = Math.floor(castle_length / 2);
     const building_starting_point_x = bridge_center - Math.floor(bridge_width / 2);
@@ -209,6 +209,40 @@ function BuildCastle(player) {
                         })?.setType(cobble);
                     }
                 }
+            }
+        }
+    }
+
+
+    // Windows
+    const w_width = 2; 
+    const w_height = 3; 
+    const w_spacing = 2; 
+    const min_margin = 2; 
+
+    const wall_width = castle_width + 1; 
+
+    const space = wall_width - (2 * min_margin);
+    const window_count = Math.floor((space + w_spacing) / (w_width + w_spacing));
+    const used_space = (window_count * w_width) + ((window_count - 1) * w_spacing);
+    
+    const centered_margin = Math.floor((wall_width - used_space) / 2);
+
+    for (let z = centered_margin; z < centered_margin + used_space; z += w_width + w_spacing) {
+        for (let y = 0; y < w_height; y++) {
+            for (let w = 0; w < w_width; w++) {
+                // Lewa ściana
+                dimension.getBlock({
+                                x: player_x,
+                                y: player_y + 2 + y,
+                                z: player_z + z + w
+                })?.setType(bars);
+                // Prawa ściana
+                dimension.getBlock({ 
+                                x: player_x + castle_length,
+                                y: player_y + 2 + y,
+                                z: player_z + z + w
+                })?.setType(bars);
             }
         }
     }
