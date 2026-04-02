@@ -5,6 +5,7 @@ const cobble = "minecraft:cobblestone";
 const planks = "minecraft:oak_planks";
 const fence = "minecraft:oak_fence";
 const bars = "minecraft:iron_bars"
+const stairs = "minecraft:oak_stairs"
 
 const water = "minecraft:water";
 const air = "minecraft:air";
@@ -381,7 +382,7 @@ function BuildStairs(dimension, px, py, pz, length, width, height, floors) {
 
                 // Place stair facing gate direction
                 dimension.getBlock({ x: stair_x, y: stair_y, z: stair_z })
-                    ?.setPermutation(BlockPermutation.resolve("minecraft:oak_stairs", {
+                    ?.setPermutation(BlockPermutation.resolve(stairs, {
                         weirdo_direction: facing,
                         upside_down_bit: false
                     }));
