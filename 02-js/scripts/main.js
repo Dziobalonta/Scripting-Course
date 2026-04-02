@@ -17,57 +17,67 @@ world.afterEvents.playerSpawn.subscribe((event) => {
 
         system.run(() => {
             world.sendMessage(`[Castle Script] Hello World, ${player.name}!`);
-            world.sendMessage(`Type !castle to run the script.`)
+            world.sendMessage(`Type !castle [width] [length] [floors] to run the script.`)
         });
     }
 }); 
 
 world.afterEvents.chatSend.subscribe((event) => {
-    if (event.message === "!castle") {
+    const parts = event.message.trim().split(/\s+/);
+
+    if (parts[0] === "!castle") {
         const player = event.sender;
+
+        const width = parts[1] ? parseInt(parts[1]) : 25;
+        const length = parts[2] ? parseInt(parts[2]) : 20;
+        const floors = parts[3] ? parseInt(parts[3]) : 2;
+
+        // Validate
+        if (isNaN(width) || isNaN(length) || isNaN(floors)) {
+            world.sendMessage(`[Castle Script] Invalid args. Usage: !castle [width] [length] [floors]`);
+            return;
+        }
 
         system.run(() => {
             world.sendMessage(`[Castle Script] Starting build for ${player.name}...`);
 
-            BuildCastle(player);
+            BuildCastle(player, width, length, floors);
 
         });
     }
 });
 
 
-function BuildCastle(player) {
-    // could be normal World, Nether or End
+function BuildCastle(player, castle_width = 25, castle_length = 20, floors = 2) {
     const dimension = player.dimension;
 
-    const player_x = Math.floor(player.location.x) + 10; // castle spawns in front of the player 
+    const player_x = Math.floor(player.location.x) + 10;
     const player_y = Math.floor(player.location.y);
     const player_z = Math.floor(player.location.z);
 
-    const castle_width = 25;
-    const castle_length = 20;
     const castle_hight = 7;
-
     const moat_width = 5;
-
     const bridge_width = 5;
+    const tower_radius = 2;
+
     const bridge_center = Math.floor(castle_length / 2);
     const building_starting_point_x = bridge_center - Math.floor(bridge_width / 2);
 
-    const tower_radius = 2;
-
     BuildFloor(dimension, player_x, player_y, player_z, castle_length, castle_width);
     BuildWalls(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight);
-    BuildNextFloor(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight, true, tower_radius);
-    BuildNextFloor(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight, true, tower_radius);
-    BuildCeiling(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight * 2);
+
+    for (let f = 1; f <= floors; f++) {
+        const isTop = f === floors;
+        BuildNextFloor(dimension, player_x, player_y + (castle_hight * f), player_z, castle_length, castle_width, castle_hight, isTop, tower_radius);
+    }
+
+    BuildCeiling(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight * (floors + 1));
     BuildMoat(dimension, player_x, player_y, player_z, castle_length, castle_width, moat_width);
-    BuildBridge(dimension, player_x, player_y, player_z,building_starting_point_x, bridge_width, moat_width);
+    BuildBridge(dimension, player_x, player_y, player_z, building_starting_point_x, bridge_width, moat_width);
     BuildGate(dimension, player_x, player_y, player_z, building_starting_point_x, bridge_width);
-    BuildTowers(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight * 2, tower_radius);
+    BuildTowers(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight * (floors + 1), tower_radius);
     BuildWindows(dimension, player_x, player_y, player_z, castle_length, castle_width, 0, tower_radius, false);
-    BuildStairs(dimension,player_x, player_y, player_z, castle_length, castle_width, castle_hight, 2);
-    
+    BuildStairs(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight, floors + 1);
 }
 
 function BuildFloor(dimension, px, py, pz, length, width) {
@@ -275,8 +285,6 @@ function BuildWindows(dimension, px, py, pz, length, width, height, tower_radius
 
 function BuildNextFloor(dimension, px, py, pz, length, width, height, isTop, tower_radius) {
 
-    const floor_y = height;
-
     for (let x = 0; x <= length; x++) {
         for (let z = 0; z <= width; z++) {
 
@@ -285,13 +293,13 @@ function BuildNextFloor(dimension, px, py, pz, length, width, height, isTop, tow
             if (isEdge) {
                 dimension.getBlock({
                             x: px + x,
-                            y: py + floor_y,
+                            y: py,
                             z: pz + z
                 })?.setType(cobble);
             } else {
                 dimension.getBlock({
                                 x: px + x,
-                                y: py + floor_y,
+                                y: py,
                                 z: pz + z
                 })?.setType(planks);
             }
@@ -299,7 +307,7 @@ function BuildNextFloor(dimension, px, py, pz, length, width, height, isTop, tow
 
     }
 
-    for (let y = floor_y + 1; y <= floor_y * 2; y++) {
+    for (let y = 0; y <= height; y++) {
         for (let x = 0; x <= length; x++) {
             dimension.getBlock({
                             x: px + x,
@@ -327,9 +335,9 @@ function BuildNextFloor(dimension, px, py, pz, length, width, height, isTop, tow
         }
     }
     if (isTop) {
-       BuildWindows(dimension, px, py, pz, length, width, floor_y, tower_radius, true); 
+       BuildWindows(dimension, px, py, pz, length, width, 0, tower_radius, true); 
     } else {
-        BuildWindows(dimension, px, py, pz, length, width, floor_y, tower_radius, false); 
+        BuildWindows(dimension, px, py, pz, length, width, 0, tower_radius, false); 
     }
     
 }
@@ -355,6 +363,7 @@ function BuildStairs(dimension, px, py, pz, length, width, height, floors) {
         const side   = floor % 2 === 0 ? -stair_offset : stair_offset;
         const dir    = floor % 2 === 0 ? 1 : -1;
         const facing = floor % 2 === 0 ? 2 : 3;
+        const adj = floor % 2 === 0 ? -2 : 2;
 
         for (let step = 0; step < height_adj; step++) {
 
@@ -379,7 +388,7 @@ function BuildStairs(dimension, px, py, pz, length, width, height, floors) {
             }
         }
 
-        start_z += dir * height_adj - 2;
+        start_z += dir * height_adj + adj;
         floor_y += height_adj;
     }
 }
