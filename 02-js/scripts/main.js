@@ -1,4 +1,4 @@
-import { world, system } from "@minecraft/server";
+import { world, system, BlockPermutation } from "@minecraft/server";
 
 const stone = "minecraft:stone";
 const cobble = "minecraft:cobblestone";
@@ -54,14 +54,17 @@ function BuildCastle(player) {
     const bridge_center = Math.floor(castle_length / 2);
     const building_starting_point_x = bridge_center - Math.floor(bridge_width / 2);
 
+    const tower_radius = 2;
+
     BuildFloor(dimension, player_x, player_y, player_z, castle_length, castle_width);
     BuildWalls(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight);
-    BuildCeiling(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight);
+    BuildNextFloor(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight, true, tower_radius);
+    BuildCeiling(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight * 2);
     BuildMoat(dimension, player_x, player_y, player_z, castle_length, castle_width, moat_width);
     BuildBridge(dimension, player_x, player_y, player_z,building_starting_point_x, bridge_width, moat_width);
     BuildGate(dimension, player_x, player_y, player_z, building_starting_point_x, bridge_width);
-    BuildTowers(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight);
-    BuildWindows(dimension, player_x, player_y, player_z, castle_length, castle_width);
+    BuildTowers(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight * 2, tower_radius);
+    BuildWindows(dimension, player_x, player_y, player_z, castle_length, castle_width, 0, tower_radius, false);
     
 }
 
@@ -187,9 +190,9 @@ function BuildGate(dimension, px, py, pz, start_x, bridge_width) {
     }
 }
 
-function BuildTowers(dimension, px, py, pz, length, width, height) {
-    const tower_radius = 2; 
-    const tower_height = Math.ceil(height / 2); 
+function BuildTowers(dimension, px, py, pz, length, width, height, tower_radius) {
+    const tower_height = Math.ceil(height / 2);
+    const overlap = Math.ceil(height / 4);
 
     const corners = [
         { x: 0, z: 0 },
@@ -199,7 +202,7 @@ function BuildTowers(dimension, px, py, pz, length, width, height) {
     ];
 
     for (const corner of corners) {
-        for (let y = height - 1; y <= tower_height + height; y++) {
+        for (let y = height - overlap; y <= tower_height + height; y++) {
             for (let x = -tower_radius; x <= tower_radius; x++) {
                 for (let z = -tower_radius; z <= tower_radius; z++) {
 
@@ -212,7 +215,7 @@ function BuildTowers(dimension, px, py, pz, length, width, height) {
                         })?.setType(cobble);
                     }
                     // Add floor
-                    if (y === height - 1) {
+                    if (y === height - overlap) {
                         dimension.getBlock({
                                         x: px + corner.x + x,
                                         y: py + y,
@@ -225,7 +228,7 @@ function BuildTowers(dimension, px, py, pz, length, width, height) {
     }
 }
 
-function BuildWindows(dimension, px, py, pz, length, width) {
+function BuildWindows(dimension, px, py, pz, length, width, height, tower_radius, isTop) {
     const w_width = 2; 
     const w_height = 3; 
     const spacing = 2; 
@@ -237,25 +240,94 @@ function BuildWindows(dimension, px, py, pz, length, width) {
     const used_space = (window_count * w_width) + ((window_count - 1) * spacing);
     
     const centered_margin = Math.floor((wall_width - used_space) / 2);
+    const padding = tower_radius + 1;
 
     for (let z = centered_margin; z < centered_margin + used_space; z += w_width + spacing) {
-        for (let y = 0; y < w_height; y++) {
-            for (let w = 0; w < w_width; w++) {
 
-                // Left
+        // Check if overlaps the tower + padding
+        if (isTop) {
+            const slotStart = z;
+            const slotEnd = z + w_width - 1;
+            const nearStart = slotStart <= padding;
+            const nearEnd = slotEnd >= width - padding;
+            if (nearStart || nearEnd) continue; // skip 
+        }
+
+        for (let w = 0; w < w_width; w++) {
+            for (let y = 0; y < w_height; y++) {
                 dimension.getBlock({
-                                x: px,
-                                y: py + 2 + y,
-                                z: pz + z + w
+                    x: px,
+                    y: py + height + 2 + y,
+                    z: pz + z + w
                 })?.setType(bars);
 
-                // Right
                 dimension.getBlock({
-                                x: px + length,
-                                y: py + 2 + y,
-                                z: pz + z + w
+                    x: px + length,
+                    y: py + height + 2 + y,
+                    z: pz + z + w
                 })?.setType(bars);
             }
         }
     }
+}
+
+function BuildNextFloor(dimension, px, py, pz, length, width, height, isTop, tower_radius) {
+
+    const floor_y = height;
+
+    for (let x = 0; x <= length; x++) {
+        for (let z = 0; z <= width; z++) {
+
+            const isEdge = x === 0 || x === length || z === 0 || z === width;
+
+            if (isEdge) {
+                dimension.getBlock({
+                            x: px + x,
+                            y: py + floor_y,
+                            z: pz + z
+                })?.setType(cobble);
+            } else {
+                dimension.getBlock({
+                                x: px + x,
+                                y: py + floor_y,
+                                z: pz + z
+                })?.setType(planks);
+            }
+        }
+
+    }
+
+    for (let y = floor_y + 1; y <= floor_y * 2; y++) {
+        for (let x = 0; x <= length; x++) {
+            dimension.getBlock({
+                            x: px + x,
+                            y: py + y,
+                            z: pz        
+            })?.setType(cobble);
+            dimension.getBlock({
+                            x: px + x,
+                            y: py + y,
+                            z: pz + width
+            })?.setType(cobble);
+        }
+        for (let z = 0; z <= width; z++) {
+            dimension.getBlock({
+                            x: px,
+                            y: py + y,
+                            z: pz + z
+            })?.setType(cobble);
+
+            dimension.getBlock({
+                            x: px + length,
+                            y: py + y,
+                            z: pz + z
+            })?.setType(cobble);
+        }
+    }
+    if (isTop) {
+       BuildWindows(dimension, px, py, pz, length, width, floor_y, tower_radius, true); 
+    } else {
+        BuildWindows(dimension, px, py, pz, length, width, floor_y, tower_radius, false); 
+    }
+    
 }
