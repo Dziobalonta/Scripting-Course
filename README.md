@@ -9,15 +9,18 @@
 Kod: [Link do zadania](https://github.com/Dziobalonta/Scripting-Course/blob/main/01-bash/tictactoe.sh)
 
 ## Zadanie 2: Zamek w Minecraft
-:x: 3.0 Prosty zamek wykorzystując minimum 5 różnych rodzajów bloków
+:white_check_mark: 3.0 Prosty zamek wykorzystując minimum 5 różnych rodzajów bloków [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob/9391339a57c24a064dc24fc8acffe836e3a1eab7/02-js/scripts/main.js)
 
-:x: 3.5 Posiada mimum 4 okna
+:white_check_mark: 3.5 Posiada mimum 4 okna [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob/433ba962e98dc1870fd70393d3bf0ff2418f8621/02-js/scripts/main.js)
 
-:x: 4.0 Posiada fosę oraz most
+:white_check_mark: 4.0 Posiada fosę oraz most [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob/accb198f9cf962d408d3dc25b885270d2c4c5e8d/02-js/scripts/main.js)
 
-:x: 4.5 Posiada bramę oraz minimum 2 wieże
+:white_check_mark: 4.5 Posiada bramę oraz minimum 2 wieże [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob/9e22cbccdecf450298b16195491b7e1e9d615f57/02-js/scripts/main.js)
 
-:x: 5.0 Zamek ma minimum dwa poziomy (piętra) na które można wejść z zewnątrz
+:white_check_mark: 5.0 Zamek ma minimum dwa poziomy (piętra) na które można wejść z zewnątrz [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob/0df262a24a99e5f4872c8fe42f7c89de801c3910/02-js/scripts/main.js)
 
-kod:
+Kod: [Link do zadania](https://github.com/Dziobalonta/Scripting-Course/blob/main/02-js/scripts/main.js)
+
+**<span style="color: red;">Uwaga. Wszystkie funkcjonalności w konkrentych commitach były jeszcze później zmieniane, finalna wersja w sekcji "Kod: <u>Link do zadania</u>".</span>**
+
 
