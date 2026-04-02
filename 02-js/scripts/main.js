@@ -59,12 +59,14 @@ function BuildCastle(player) {
     BuildFloor(dimension, player_x, player_y, player_z, castle_length, castle_width);
     BuildWalls(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight);
     BuildNextFloor(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight, true, tower_radius);
+    BuildNextFloor(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight, true, tower_radius);
     BuildCeiling(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight * 2);
     BuildMoat(dimension, player_x, player_y, player_z, castle_length, castle_width, moat_width);
     BuildBridge(dimension, player_x, player_y, player_z,building_starting_point_x, bridge_width, moat_width);
     BuildGate(dimension, player_x, player_y, player_z, building_starting_point_x, bridge_width);
     BuildTowers(dimension, player_x, player_y, player_z, castle_length, castle_width, castle_hight * 2, tower_radius);
     BuildWindows(dimension, player_x, player_y, player_z, castle_length, castle_width, 0, tower_radius, false);
+    BuildStairs(dimension,player_x, player_y, player_z, castle_length, castle_width, castle_hight, 2);
     
 }
 
@@ -330,4 +332,54 @@ function BuildNextFloor(dimension, px, py, pz, length, width, height, isTop, tow
         BuildWindows(dimension, px, py, pz, length, width, floor_y, tower_radius, false); 
     }
     
+}
+
+function BuildStairs(dimension, px, py, pz, length, width, height, floors) {
+    const stair_width = 2;       
+    const stair_offset = 2;
+
+    const center_x = Math.floor(length / 2);
+    const center_z = Math.floor(width / 2);
+
+    let floor_y = 0;
+    let start_z = center_z;
+
+    for (let floor = 0; floor < floors; floor++) {
+        
+        let height_adj = height;
+        if (floor === 0) {
+           height_adj = height + 1;
+        }
+
+        // Flip side and direction every floor
+        const side   = floor % 2 === 0 ? -stair_offset : stair_offset;
+        const dir    = floor % 2 === 0 ? 1 : -1;
+        const facing = floor % 2 === 0 ? 2 : 3;
+
+        for (let step = 0; step < height_adj; step++) {
+
+            const stair_z = pz + start_z + (dir * step);
+            const stair_y = py + floor_y + step;
+
+            for (let w = 0; w <= stair_width + 1; w++) {
+                const stair_x = px + center_x + side + w;
+
+                // Clear 4 blocks of headroom
+                dimension.getBlock({ x: stair_x, y: stair_y + 1, z: stair_z })?.setType(air);
+                dimension.getBlock({ x: stair_x, y: stair_y + 2, z: stair_z })?.setType(air);
+                dimension.getBlock({ x: stair_x, y: stair_y + 3, z: stair_z })?.setType(air);
+                dimension.getBlock({ x: stair_x, y: stair_y + 4, z: stair_z })?.setType(air);
+
+                // Place stair facing gate direction
+                dimension.getBlock({ x: stair_x, y: stair_y, z: stair_z })
+                    ?.setPermutation(BlockPermutation.resolve("minecraft:oak_stairs", {
+                        weirdo_direction: facing,
+                        upside_down_bit: false
+                    }));
+            }
+        }
+
+        start_z += dir * height_adj - 2;
+        floor_y += height_adj;
+    }
 }
