@@ -2,3 +2,5 @@ test_tasks.sh
 assignments.txt
 *.save
 node_modules/
+test.rb
+*.csv
