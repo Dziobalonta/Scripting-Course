@@ -4,3 +4,4 @@ assignments.txt
 node_modules/
 test.rb
 *.csv
+debug.html
