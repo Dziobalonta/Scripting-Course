@@ -2,6 +2,9 @@ require 'selenium-webdriver'
 require 'nokogiri'
 require 'uri'
 
+search_query = ARGV.join(' ')
+
+
 # OPENING THE SITE
 # Using selenium to open page via chrome - simulating an actual user
 options = Selenium::WebDriver::Chrome::Options.new
@@ -22,7 +25,9 @@ sleep(rand(4..8)) # Simulating real user
 
 puts "Title: #{driver.title}"
 
-driver.get("https://allegro.pl/kategoria/zabawki-11818")
+# encode query to web format, change spaces to %20 etc
+encoded = URI.encode_www_form_component(search_query)
+driver.get("https://allegro.pl/listing?string=#{encoded}")
 sleep(rand(5..9)) # Simulating real user
 
 html = driver.page_source
