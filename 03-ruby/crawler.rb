@@ -13,14 +13,18 @@ FileUtils.mkdir_p('db') # if no folder - create it
 
 DB = Sequel.connect('sqlite://db/Allegro.db')
 # to_sym changes string to symbol,-  Sequel requires it
-table_name = search_query.downcase.gsub(/[^a-z0-9]/, '_').squeeze('_').to_sym
+table_name = search_query
+                        .downcase
+                        .tr('ąćęłńóśźż', 'acelnosyz')
+                        .gsub(/[^a-z0-9]/, '_')
+                        .squeeze('_')
+                        .to_sym
 
 DB.create_table?(table_name) do
   primary_key :id
   String :title
   String :price
   String :url, unique: true
-  String :params
   DateTime :scraped_at
 end
 
@@ -130,13 +134,43 @@ products.each_with_index do |page, i|
   puts ""
 
   ## SAVING TO DATABASE
-  products_db.insert_conflict(:ignore).insert(
-    title: page[:title],
-    price: page[:price],
-    url: page[:url],
-    params: params.map { |k, v| "#{k}: #{v}" }.join(", "),
+
+  params.each_key do |k|
+    col = k
+          .downcase
+          .tr('ąćęłńóśźż', 'acelnosyz')
+          .gsub(/[^a-z0-9]/, '_')
+          .squeeze('_')
+          .to_sym
+
+    unless DB[table_name].columns.include?(col)
+      DB.add_column(table_name, col, String)
+      puts "  New column added: #{col}"
+
+    end
+  end
+
+  row = {
+    title:      page[:title],
+    price:      page[:price],
+    url:        page[:url],
     scraped_at: Time.now
-  )
+  }
+
+  params.each do |k, v|
+
+    col = k
+          .downcase
+          .tr('ąćęłńóśźż', 'acelnosyz')
+          .gsub(/[^a-z0-9]/, '_')
+          .squeeze('_')
+          .to_sym
+
+    row[col] = v
+  end
+
+  products_db.insert_conflict(:ignore).insert(row)
+  
   puts "Saved to Database!"
   puts ""
 
