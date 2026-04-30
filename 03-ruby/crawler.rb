@@ -1,10 +1,30 @@
 require 'selenium-webdriver'
 require 'nokogiri'
 require 'uri'
+require 'sequel'
+require 'sqlite3'
+require 'fileutils'
 
 search_query = ARGV[0] || ""
 limit = (ARGV[1] || 10).to_i # Default number is 10
 
+## DATABASE SETUP
+FileUtils.mkdir_p('db') # if no folder - create it
+
+DB = Sequel.connect('sqlite://db/Allegro.db')
+# to_sym changes string to symbol,-  Sequel requires it
+table_name = search_query.downcase.gsub(/[^a-z0-9]/, '_').squeeze('_').to_sym
+
+DB.create_table?(table_name) do
+  primary_key :id
+  String :title
+  String :price
+  String :url, unique: true
+  String :params
+  DateTime :scraped_at
+end
+
+products_db = DB[table_name]
 
 # OPENING THE SITE
 # Using selenium to open page via chrome - simulating an actual user
@@ -102,10 +122,26 @@ products.each_with_index do |page, i|
     puts "NO PARAMS"
   else
     puts "Params:"
-    params.each { |k, v| puts "  #{k}: #{v}" }
+    params.each do |k, v|
+      puts "  #{k}: #{v}"
+    end
   end
 
   puts ""
+
+  ## SAVING TO DATABASE
+  products_db.insert_conflict(:ignore).insert(
+    title: page[:title],
+    price: page[:price],
+    url: page[:url],
+    params: params.map { |k, v| "#{k}: #{v}" }.join(", "),
+    scraped_at: Time.now
+  )
+  puts "Saved to Database!"
+  puts ""
+
 end
+
+puts "Done! #{products_db.count} products in database."
 
 driver.quit
