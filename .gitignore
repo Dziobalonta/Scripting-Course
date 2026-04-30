@@ -5,3 +5,4 @@ node_modules/
 test.rb
 *.csv
 debug.html
+debug_product.html
