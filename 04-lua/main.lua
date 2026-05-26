@@ -108,7 +108,13 @@ function love.update(dt)
     timer = timer + dt
 
     if timer >= currentSpeed then
-        spawnPiece_Y = spawnPiece_Y + 1
+
+        if canMove(currentPiece, spawnPiece_X, spawnPiece_Y + 1) then
+            spawnPiece_Y = spawnPiece_Y + 1
+
+        else
+            lockPiece()
+        end
         timer = 0
     end
 
@@ -117,15 +123,27 @@ end
 function love.keypressed(key)
 
     if key == "up" then
-        currentPiece = rotatePiece(currentPiece)
+        local rot = rotatePiece(currentPiece)
+
+        if canMove(currentPiece, spawnPiece_X, spawnPiece_Y) then
+            currentPiece = rot
+        end
     end
 
     if key == "left" then
-        spawnPiece_X = spawnPiece_X - 1
+        local offseted = spawnPiece_X - 1
+
+        if canMove(currentPiece, spawnPiece_X - 1, spawnPiece_Y) then
+            spawnPiece_X = offseted
+        end
     end
 
     if key == "right" then
-        spawnPiece_X = spawnPiece_X + 1
+        local offseted = spawnPiece_X + 1
+
+        if canMove(currentPiece, spawnPiece_X + 1, spawnPiece_Y) then
+            spawnPiece_X = offseted
+        end
     end
 
 end
@@ -142,4 +160,55 @@ function rotatePiece(piece)
     end
 
     return rotated
+end
+-- checks next X and Y for a given piece
+function canMove(piece, next_X, next_Y)
+
+    for y = 1, #piece do
+        for x = 1, #piece[y] do
+            if piece[y][x] == 1 then
+
+                local test_X = next_X + x - 1
+                local test_Y = next_Y + y - 1
+
+                -- check walls and floor
+                if test_X < 1 or test_X > grid_X or test_Y > grid_Y then
+                    return false 
+                end
+
+
+                -- check for older pieces
+                if test_Y > 0 and grid[test_Y][test_X] ~= 0 then
+                    return false
+                end
+
+            end
+        end
+    end
+    return true
+end
+
+function lockPiece()
+
+    for y = 1, #currentPiece do
+        for x = 1, #currentPiece[y] do
+            if currentPiece[y][x] == 1 then
+
+                local final_X = spawnPiece_X + x - 1
+                local final_Y = spawnPiece_Y + y - 1
+
+                -- write to a board
+                if final_Y > 0 then
+                    grid[final_Y][final_X] = 1
+                end
+            end
+        end
+    end
+
+    -- Choosing next shape
+    spawnPiece_X = 4
+    spawnPiece_Y = 1
+    local randomID = love.math.random(1, #shapes)
+    currentPiece = shapes[randomID]
+    
 end
