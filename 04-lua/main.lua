@@ -98,11 +98,48 @@ function love.draw()
 end
 
 function love.update(dt)
+    local currentSpeed = dropSpeed
+
+    -- making the interval smaller = falling faster
+    if love.keyboard.isDown("down") then
+        currentSpeed = 0.05
+    end
+
     timer = timer + dt
 
-    if timer >= dropSpeed then
+    if timer >= currentSpeed then
         spawnPiece_Y = spawnPiece_Y + 1
         timer = 0
     end
 
+end
+
+function love.keypressed(key)
+
+    if key == "up" then
+        currentPiece = rotatePiece(currentPiece)
+    end
+
+    if key == "left" then
+        spawnPiece_X = spawnPiece_X - 1
+    end
+
+    if key == "right" then
+        spawnPiece_X = spawnPiece_X + 1
+    end
+
+end
+
+function rotatePiece(piece)
+    local rotated =  {}
+    local size = #piece
+
+    for y = 1, size do
+        rotated[y] = {} -- Create new row before starting to write to it
+        for x = 1, size do
+            rotated[y][x] = piece[size - x + 1][y]
+        end 
+    end
+
+    return rotated
 end
