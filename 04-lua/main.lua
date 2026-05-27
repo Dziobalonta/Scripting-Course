@@ -8,6 +8,7 @@ local timer = 0
 local dropSpeed = 0.5 
 
 local gameOver = false
+local score = 0
 
 -- Board
 local grid = {}
@@ -125,6 +126,13 @@ function love.update(dt)
         if canMove(currentPiece, spawnPiece_X, spawnPiece_Y + 1) then
             spawnPiece_Y = spawnPiece_Y + 1
 
+
+            if love.keyboard.isDown("down") then
+                score = score + 1
+                os.execute("cls")
+                print("Score: " .. score  .. " (+1)")
+            end
+
         else
             lockPiece()
         end
@@ -238,6 +246,7 @@ end
 
 function checkForFull()
     local y = grid_Y
+    local removedCounter = 0
 
     while y > 0 do
         local isFull = true
@@ -259,10 +268,20 @@ function checkForFull()
 
             table.insert(grid, 1, newRow)
 
+            -- Counter for adding points
+            removedCounter = removedCounter + 1
         else
             y = y-1
             
         end
+    end
+
+    if removedCounter > 0 then
+        local added = removedCounter * 100
+        score = score + added
+
+        os.execute("cls")
+        print("Score: " .. score  .. " (+" .. added .. ")")
     end
     
 end
