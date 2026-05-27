@@ -10,9 +10,10 @@ local dropSpeed = 0.5
 local gameState = "running" -- "running", "paused", "gameover"
 local score = 0
 
+local drops = {}
+
 -- Board
 local grid = {}
-
 
 local currentPiece = {}
 local spawnPiece_X = 4
@@ -100,6 +101,14 @@ function love.load()
     -- Choosing first shape
     local randomID = love.math.random(1, #shapes)
     currentPiece = shapes[randomID]
+
+        -- Sounds
+    dropSound1 = love.audio.newSource("sfx/Lego Bricks Merge 1.wav", "static")
+    dropSound2 = love.audio.newSource("sfx/Lego Bricks Merge 2.wav", "static")
+    dropSound3 = love.audio.newSource("sfx/LegosDrop_BW.8953.wav", "static")
+    drops = {dropSound1, dropSound2, dropSound3}
+
+    clearSound = love.audio.newSource("sfx/YTDown_YouTube_Enderman-s-Teleport-Sound-Effect_Media_dOnc_jJMMU_007_128k.mp3", "static")
 end
 
 function love.draw()
@@ -346,6 +355,9 @@ function lockPiece()
         end
     end
 
+    local randID = love.math.random(1, #drops)
+    drops[randID]:clone():play()
+
     checkForFull()
 
     -- Choosing next shape
@@ -395,6 +407,8 @@ function checkForFull()
     if removedCounter > 0 then
         local added = removedCounter * 100
         score = score + added
+
+        clearSound:clone():play()
 
         -- os.execute("cls")
         -- print("Score: " .. score  .. " (+" .. added .. ")")
