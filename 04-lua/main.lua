@@ -7,7 +7,7 @@ local blockSize = 30
 local timer = 0
 local dropSpeed = 0.5 
 
-local gameOver = false
+local gameState = "running" -- "running", "paused", "gameover"
 local score = 0
 
 -- Board
@@ -51,6 +51,39 @@ local shapes = {
     }
 }
 
+function saveGame()
+    local data = "return {\n score = " .. score .. ",\n grid = {\n"
+    for y = 1, grid_Y do
+        data = data .. "  {" .. table.concat(grid[y], ",") .. "},\n"
+    end
+    data = data .. " }\n}"
+    
+    love.filesystem.write("savegame.lua", data)
+end
+
+function loadGame()
+    if love.filesystem.getInfo("savegame.lua") then
+        local chunk = love.filesystem.load("savegame.lua")
+        local saveData = chunk()
+        
+        score = saveData.score
+        grid = saveData.grid
+        gameState = "running"
+    end
+end
+
+function resetGame()
+    for y = 1, grid_Y do
+        for x = 1, grid_X do
+            grid[y][x] = 0
+        end
+    end
+    score = 0
+    spawnPiece_X = 4
+    spawnPiece_Y = 1
+    gameState = "running"
+end
+
 function love.load()
 
     love.window.setMode(grid_X * blockSize, grid_Y * blockSize)
@@ -88,6 +121,12 @@ function love.draw()
         end
     end
 
+    love.graphics.setColor(0, 0, 0, 0.8) 
+    love.graphics.rectangle("fill", 0, 0, 100, 30)
+
+    --  text
+    love.graphics.setColor(1, 1, 1) 
+    love.graphics.print("Score: " .. score, 10, 8)
 
     for y = 1, #currentPiece do
         for x = 1, #currentPiece[y] do
@@ -104,11 +143,46 @@ function love.draw()
             end
         end
     end
+
+    -- UI
+    if gameState == "paused" then
+        love.graphics.setColor(0, 0, 0, 0.8)
+        love.graphics.rectangle("fill", 0, 0, grid_X * blockSize, grid_Y * blockSize)
+        
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print("PAUSE", 105, 150, 0, 2, 2)
+        
+        -- Przyciski X=80, Szerokość=140
+        love.graphics.rectangle("line", 80, 250, 140, 40)
+        love.graphics.print("RESUME", 125, 262)
+
+        love.graphics.rectangle("line", 80, 310, 140, 40)
+        love.graphics.print("SAVE", 125, 322)
+
+        love.graphics.rectangle("line", 80, 370, 140, 40)
+        love.graphics.print("LOAD", 120, 382)
+    end
+
+    -- MENU GAME OVER
+    if gameState == "gameover" then
+        love.graphics.setColor(0, 0, 0, 0.8)
+        love.graphics.rectangle("fill", 0, 0, grid_X * blockSize, grid_Y * blockSize)
+        
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.print("GAME OVER", 50, 200, 0, 2, 2)
+        
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.rectangle("line", 80, 300, 140, 40)
+        love.graphics.print("RETRY", 115, 312)
+
+        love.graphics.rectangle("line", 80, 360, 140, 40)
+        love.graphics.print("QUIT", 125, 372)
+    end
 end
 
 function love.update(dt)
 
-    if gameOver then
+    if gameState ~= "running" then
         return
     end
 
@@ -129,8 +203,8 @@ function love.update(dt)
 
             if love.keyboard.isDown("down") then
                 score = score + 1
-                os.execute("cls")
-                print("Score: " .. score  .. " (+1)")
+                -- os.execute("cls")
+                -- print("Score: " .. score  .. " (+1)")
             end
 
         else
@@ -143,8 +217,16 @@ end
 
 function love.keypressed(key)
 
-    if gameOver then
-        return
+    if key == "escape" then
+        if gameState == "running" then
+            gameState = "paused"
+        elseif gameState == "paused" then
+            gameState = "running"
+        end
+    end
+
+    if gameState ~= "running" then
+        return -- ignore keys when paused
     end
 
     if key == "up" then
@@ -171,6 +253,40 @@ function love.keypressed(key)
         end
     end
 
+end
+
+function love.mousepressed(x, y, button, istouch)
+    if button == 1 then -- 1 means LMB
+    
+        if gameState == "paused" then
+            -- checking coords on screen
+            if x >= 80 and x <= 220 then
+                -- Resume
+                if y >= 250 and y <= 290 then
+                    gameState = "running"
+                -- Save
+                elseif y >= 310 and y <= 350 then
+                    saveGame()
+                -- Load
+                elseif y >= 370 and y <= 410 then
+                    loadGame()
+                end
+            end
+            
+        elseif gameState == "gameover" then
+            -- checking coords on screen
+            if x >= 80 and x <= 220 then
+                -- Reset
+                if y >= 300 and y <= 340 then
+                    resetGame()
+                -- Quit
+                elseif y >= 360 and y <= 400 then
+                    love.event.quit()
+                end
+            end
+        end
+
+    end
 end
 
 function rotatePiece(piece)
@@ -239,7 +355,7 @@ function lockPiece()
     currentPiece = shapes[randomID]
 
     if not canMove(currentPiece, spawnPiece_X, spawnPiece_Y) then
-        gameOver = true
+       gameState = "gameover"
     end
     
 end
@@ -280,8 +396,8 @@ function checkForFull()
         local added = removedCounter * 100
         score = score + added
 
-        os.execute("cls")
-        print("Score: " .. score  .. " (+" .. added .. ")")
+        -- os.execute("cls")
+        -- print("Score: " .. score  .. " (+" .. added .. ")")
     end
     
 end
