@@ -7,6 +7,8 @@ local blockSize = 30
 local timer = 0
 local dropSpeed = 0.5 
 
+local gameOver = false
+
 -- Board
 local grid = {}
 
@@ -27,6 +29,12 @@ local shapes = {
         {1, 1, 1, 1},
         {0, 0, 0, 0},
         {0, 0, 0, 0}
+    },
+
+    { -- Padding for rotating
+        {0, 1, 0, 0},
+        {0, 1, 1, 0},
+        {0, 0, 1, 0}
     },
 
     { -- Padding for rotating
@@ -98,6 +106,11 @@ function love.draw()
 end
 
 function love.update(dt)
+
+    if gameOver then
+        return
+    end
+
     local currentSpeed = dropSpeed
 
     -- making the interval smaller = falling faster
@@ -122,10 +135,14 @@ end
 
 function love.keypressed(key)
 
+    if gameOver then
+        return
+    end
+
     if key == "up" then
         local rot = rotatePiece(currentPiece)
 
-        if canMove(currentPiece, spawnPiece_X, spawnPiece_Y) then
+        if canMove(rot, spawnPiece_X, spawnPiece_Y) then
             currentPiece = rot
         end
     end
@@ -205,10 +222,47 @@ function lockPiece()
         end
     end
 
+    checkForFull()
+
     -- Choosing next shape
     spawnPiece_X = 4
     spawnPiece_Y = 1
     local randomID = love.math.random(1, #shapes)
     currentPiece = shapes[randomID]
+
+    if not canMove(currentPiece, spawnPiece_X, spawnPiece_Y) then
+        gameOver = true
+    end
+    
+end
+
+function checkForFull()
+    local y = grid_Y
+
+    while y > 0 do
+        local isFull = true
+
+        for x = 1, grid_X do
+            if grid[y][x] == 0 then
+                isFull = false
+                break
+            end    
+        end
+
+        if isFull then
+            table.remove(grid, y)
+
+            local newRow = {}
+            for i = 1, grid_X do
+                newRow[i] = 0
+            end
+
+            table.insert(grid, 1, newRow)
+
+        else
+            y = y-1
+            
+        end
+    end
     
 end
