@@ -1,0 +1,13 @@
+FROM ubuntu:22.04
+
+WORKDIR /app
+
+COPY . .
+
+# Love installator needs this
+RUN mkdir -p /usr/share/man/man6 && \
+    touch /usr/share/man/man6/love-11.3.6.gz
+
+RUN apt-get update && apt-get install -y love
+
+CMD [ "love", "." ]
