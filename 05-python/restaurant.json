@@ -1,0 +1,44 @@
+{
+  "godziny_otwarcia": {
+    "poniedzialek_czwartek": "11:00 - 22:00",
+    "piatek_sobota": "11:00 - 23:00",
+    "niedziela": "12:00 - 21:00"
+  },
+  "pozycje": [
+    {
+      "nazwa": "Pizza Margherita",
+      "cena": 30.0,
+      "opis": "Sos pomidorowy, ser mozzarella, oregano"
+    },
+    {
+      "nazwa": "Pizza Capricciosa",
+      "cena": 38.0,
+      "opis": "Sos pomidorowy, ser, pieczarki, szynka"
+    },
+    {
+      "nazwa": "Pizza Pepperoni",
+      "cena": 39.0,
+      "opis": "Sos pomidorowy, ser, salami pepperoni"
+    },
+    {
+      "nazwa": "Pizza Hawajska",
+      "cena": 37.0,
+      "opis": "Sos pomidorowy, ser, szynka, ananas"
+    },
+    {
+      "nazwa": "Pizza Vegetariana",
+      "cena": 35.0,
+      "opis": "Sos pomidorowy, ser, papryka, cebula, oliwki"
+    },
+    {
+      "nazwa": "Pizza Quattro Formaggi",
+      "cena": 40.0,
+      "opis": "Sos pomidorowy, ser mozzarella, gorgonzola, parmezan, ricotta"
+    },
+    {
+      "nazwa": "Pizza Diavola",
+      "cena": 39.0,
+      "opis": "Sos pomidorowy, ser, pikantne salami, papryczki chili"
+    }
+  ]
+}
