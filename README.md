@@ -49,4 +49,4 @@ Kod: [Link od zadania](https://github.com/Dziobalonta/Scripting-Course/blob/main
 
 :white_check_mark: 5.0 Wersja na iOS lub Android z implementacją touch zamiast klawiatury [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob/83183020f08ee9711cca3318b808eeb1574c0625/04-lua/main.lua)
 
-Kod: [Link od zadania] (https://github.com/Dziobalonta/Scripting-Course/blob/main/04-lua/main.lua)
+Kod: [Link od zadania](https://github.com/Dziobalonta/Scripting-Course/blob/main/04-lua/main.lua)
