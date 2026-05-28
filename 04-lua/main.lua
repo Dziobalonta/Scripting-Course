@@ -7,10 +7,12 @@ local blockSize = 30
 local timer = 0
 local dropSpeed = 0.5 
 
-local gameState = "running" -- "running", "paused", "gameover"
+local gameState = "running" -- "running", "paused", "gameover",  "animating"
 local score = 0
 
 local drops = {}
+
+local animTimer = 0
 
 -- Board
 local grid = {}
@@ -40,6 +42,12 @@ local shapes = {
     },
 
     { -- Padding for rotating
+        {0, 0, 1, 0},
+        {0, 1, 1, 0},
+        {0, 1, 0, 0}
+    },
+
+    { -- Padding for rotating
         {0, 1, 0},
         {1, 1, 1},
         {0, 0, 0}
@@ -47,6 +55,12 @@ local shapes = {
 
     { -- Padding for rotating
         {0, 0, 1},
+        {1, 1, 1},
+        {0, 0, 0} 
+    },
+
+    { -- Padding for rotating
+        {1, 0, 0},
         {1, 1, 1},
         {0, 0, 0} 
     }
@@ -116,16 +130,26 @@ function love.draw()
     for y = 1, grid_Y do
         for x = 1, grid_X do
             if grid[y][x] == 0 then
-                -- Drawing a blocks with lineout to better see the size
+                -- Drawing empty blocks
                 love.graphics.setColor(0.1, 0.1, 0.1)
                 love.graphics.rectangle("fill", (x - 1) * blockSize, (y - 1) * blockSize, blockSize, blockSize)
                 
                 love.graphics.setColor(0.2, 0.2, 0.2)
                 love.graphics.rectangle("line", (x - 1) * blockSize, (y - 1) * blockSize, blockSize, blockSize)
-            else
-                -- white fill for easy debug when something goes wrong
+                
+            elseif grid[y][x] == 1 then
+                -- Normal color
                 love.graphics.setColor(0.8, 0.8, 0.8)
                 love.graphics.rectangle("fill", (x - 1) * blockSize, (y - 1) * blockSize, blockSize - 1, blockSize - 1)
+                
+            elseif grid[y][x] == 2 then
+                -- Flashing red color
+                if math.floor(animTimer * 10) % 2 == 0 then
+                    love.graphics.setColor(1, 0, 0) -- Red
+                else
+                    love.graphics.setColor(1, 1, 1) -- White
+                end
+                love.graphics.rectangle("fill", (x - 1) * blockSize, (y - 1) * blockSize, blockSize, blockSize)
             end
         end
     end
@@ -137,18 +161,20 @@ function love.draw()
     love.graphics.setColor(1, 1, 1) 
     love.graphics.print("Score: " .. score, 10, 8)
 
-    for y = 1, #currentPiece do
-        for x = 1, #currentPiece[y] do
-            if currentPiece[y][x] == 1 then
-                -- Calculate location on the screen
-                local screen_X = (spawnPiece_X + x - 2) * blockSize
-                local screen_Y = (spawnPiece_Y + y - 2) * blockSize
+    if gameState == "running" then
+        for y = 1, #currentPiece do
+            for x = 1, #currentPiece[y] do
+                if currentPiece[y][x] == 1 then
+                    -- Calculate location on the screen
+                    local screen_X = (spawnPiece_X + x - 2) * blockSize
+                    local screen_Y = (spawnPiece_Y + y - 2) * blockSize
 
-                love.graphics.setColor(0.2, 0.6, 1.0)
-                love.graphics.rectangle("fill", screen_X, screen_Y, blockSize, blockSize)
+                    love.graphics.setColor(0.2, 0.6, 1.0)
+                    love.graphics.rectangle("fill", screen_X, screen_Y, blockSize, blockSize)
 
-                love.graphics.setColor(0.8, 0.8, 0.8)
-                love.graphics.rectangle("line", screen_X, screen_Y, blockSize, blockSize)
+                    love.graphics.setColor(0.8, 0.8, 0.8)
+                    love.graphics.rectangle("line", screen_X, screen_Y, blockSize, blockSize)
+                end
             end
         end
     end
@@ -161,7 +187,6 @@ function love.draw()
         love.graphics.setColor(1, 1, 1)
         love.graphics.print("PAUSE", 105, 150, 0, 2, 2)
         
-        -- Przyciski X=80, Szerokość=140
         love.graphics.rectangle("line", 80, 250, 140, 40)
         love.graphics.print("RESUME", 125, 262)
 
@@ -190,6 +215,49 @@ function love.draw()
 end
 
 function love.update(dt)
+
+    if gameState == "animating" then
+        animTimer = animTimer - dt
+        
+        -- when animation is done
+        if animTimer <= 0 then
+            local removedCounter = 0
+            local y = grid_Y
+            
+            while y > 0 do
+                if grid[y][1] == 2 then -- search for animating state
+                
+                    table.remove(grid, y)
+
+                    local newRow = {}
+                    
+                    for i = 1, grid_X do
+                        newRow[i] = 0
+                    end
+
+                    table.insert(grid, 1, newRow)
+                    
+                    removedCounter = removedCounter + 1
+                else
+                    y = y - 1
+                end
+            end
+
+            if removedCounter > 0 then
+                local added = removedCounter * 100
+                score = score + added
+
+                clearSound:clone():play()
+
+                -- os.execute("cls")
+                -- print("Score: " .. score  .. " (+" .. added .. ")")
+            end
+
+            spawnNextPiece()
+        end
+        
+        return -- Stop updating when animating
+    end
 
     if gameState ~= "running" then
         return
@@ -358,9 +426,14 @@ function lockPiece()
     local randID = love.math.random(1, #drops)
     drops[randID]:clone():play()
 
-    checkForFull()
+    if not checkForFull() then
+        -- Choosing next shape 
+        spawnNextPiece()
+    end
+    
+end
 
-    -- Choosing next shape
+function spawnNextPiece()
     spawnPiece_X = 4
     spawnPiece_Y = 1
     local randomID = love.math.random(1, #shapes)
@@ -368,13 +441,14 @@ function lockPiece()
 
     if not canMove(currentPiece, spawnPiece_X, spawnPiece_Y) then
        gameState = "gameover"
-    end
-    
+    else
+        gameState = "running"
+    end    
 end
 
 function checkForFull()
     local y = grid_Y
-    local removedCounter = 0
+    local willAnimate = false
 
     while y > 0 do
         local isFull = true
@@ -387,31 +461,26 @@ function checkForFull()
         end
 
         if isFull then
-            table.remove(grid, y)
 
-            local newRow = {}
-            for i = 1, grid_X do
-                newRow[i] = 0
+            for x = 1, grid_X do
+                grid[y][x] = 2
             end
 
-            table.insert(grid, 1, newRow)
+            willAnimate = true
 
-            -- Counter for adding points
-            removedCounter = removedCounter + 1
+            y = y-1
+
         else
             y = y-1
             
         end
     end
 
-    if removedCounter > 0 then
-        local added = removedCounter * 100
-        score = score + added
+    if willAnimate then
+        gameState = "animating"
+        animTimer = 0.5
 
-        clearSound:clone():play()
-
-        -- os.execute("cls")
-        -- print("Score: " .. score  .. " (+" .. added .. ")")
     end
-    
+
+    return willAnimate
 end
