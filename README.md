@@ -40,9 +40,13 @@ Kod: [Link od zadania](https://github.com/Dziobalonta/Scripting-Course/blob/main
 
 ## Zadanie 3: Tetris  w Lua
 :white_check_mark: 3.0 Postawowa wersja dekstopowa z obsługą na klawiaturze - minimum 4 rodzaje klocków [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob/41ed2f3df94e6664b352c00082c5aae7da47de29/04-lua/main.lua)
+
 :white_check_mark: 3.5 Zapis i odczyt gier [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob/7b46b8b46abdfb316103fb5d0a84c8b785c1e7ce/04-lua/main.lua)
+
 :white_check_mark: 4.0 Dodanie efektów dźwiękowych przy akcjach [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob/c22e8d1ced39da91a272001de38fbd3248ce96d6/04-lua/main.lua)
+
 :white_check_mark: 4.5 Dodanie animacji przy zbijaniu klocków [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob/dd0ba57b96c3872314ddc45b493e2574cacdd4b3/04-lua/main.lua)
+
 :white_check_mark: 5.0 Wersja na iOS lub Android z implementacją touch zamiast klawiatury [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob/83183020f08ee9711cca3318b808eeb1574c0625/04-lua/main.lua)
 
 Kod: [Link od zadania] (https://github.com/Dziobalonta/Scripting-Course/blob/main/04-lua/main.lua)
