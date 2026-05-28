@@ -21,6 +21,13 @@ local currentPiece = {}
 local spawnPiece_X = 4
 local spawnPiece_Y = 1
 
+-- Touch
+local isTouching = false
+local touch_X = 0
+local touchTimer = 0
+local hasSwiped = false
+local swipeThreshold = 40 -- size of finger swipe to be registred as swipe
+
 -- Pieces
 local shapes = {
     {
@@ -263,10 +270,13 @@ function love.update(dt)
         return
     end
 
+    if isTouching then
+        touchTimer = touchTimer + dt
+    end
+
     local currentSpeed = dropSpeed
 
-    -- making the interval smaller = falling faster
-    if love.keyboard.isDown("down") then
+    if love.keyboard.isDown("down") or (isTouching and touchTimer >= 0.25 and not hasSwiped) then
         currentSpeed = 0.05
     end
 
@@ -278,7 +288,7 @@ function love.update(dt)
             spawnPiece_Y = spawnPiece_Y + 1
 
 
-            if love.keyboard.isDown("down") then
+            if love.keyboard.isDown("down") or (isTouching and touchTimer >= 0.25 and not hasSwiped) then
                 score = score + 1
                 -- os.execute("cls")
                 -- print("Score: " .. score  .. " (+1)")
@@ -361,8 +371,56 @@ function love.mousepressed(x, y, button, istouch)
                     love.event.quit()
                 end
             end
+        elseif gameState == "running" then
+            -- Top Left tap - stops the game
+            if x < 120 and y < 40 then
+                gameState = "paused"
+            else
+                -- tracking touch/mouse/swie
+                isTouching = true
+                hasSwiped = false
+                touchTimer = 0
+                touch_X = x
+            end
         end
+    end
+end
 
+-- Function for swiping with finger - touch
+function love.mousemoved(x, y, dx, dy, istouch)
+    if gameState == "running" and isTouching then
+        
+        -- Swipe right
+        if x - touch_X > swipeThreshold then
+            if canMove(currentPiece, spawnPiece_X + 1, spawnPiece_Y) then
+                spawnPiece_X = spawnPiece_X + 1
+            end
+            touch_X = x -- Reset
+            hasSwiped = true
+            
+        -- Swipe left
+        elseif touch_X - x > swipeThreshold then
+            if canMove(currentPiece, spawnPiece_X - 1, spawnPiece_Y) then
+                spawnPiece_X = spawnPiece_X - 1
+            end
+            touch_X = x
+            hasSwiped = true
+        end
+        
+    end
+end
+
+-- for roatating on tap
+function love.mousereleased(x, y, button, istouch)
+    if button == 1 and gameState == "running" then
+        isTouching = false
+       
+        if not hasSwiped and touchTimer < 0.25 then
+            local rot = rotatePiece(currentPiece)
+            if canMove(rot, spawnPiece_X, spawnPiece_Y) then
+                currentPiece = rot
+            end
+        end
     end
 end
 
