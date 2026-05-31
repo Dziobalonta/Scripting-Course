@@ -6,11 +6,12 @@ debug = True
 
 def grab_API_data():
     try:
-        req = requests.get('http://localhost:5000/')
+        req = requests.get('http://api:5000/')
         return req.json()
 
     except Exception as e :
         print("Flask server is not up. Try Runinng app.py first.")
+        return {}
 
 def load_config(path):
     with open(path, 'r', encoding='utf-8') as f:
@@ -54,7 +55,6 @@ chat_history = [
 
 print("Bot działa! Napisz \"koniec\" aby wyjść z programu.\n" + "-"*50)
 
-# 3. Pętla konwersacyjna
 while True:
     user_text = input("Ty: ")
     
@@ -100,7 +100,7 @@ while True:
         secret_response = ollama.chat(model='gemma4:e2b', messages=secret_chat_history, format='json')
         order_json = json.loads(secret_response['message']['content'])
 
-        res = requests.post('http://localhost:5000/',json=order_json)
+        res = requests.post('http://api:5000/',json=order_json)
 
         if debug:
             print("[DEBUG] Operation sucessful!")

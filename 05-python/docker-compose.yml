@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  # Server Flask
+  api:
+    build: .
+    ports:
+      - "5000:5000"
+    command: python app.py
+    environment:
+      - FLASK_ENV=development
+
+  bot:
+    build: .
+    stdin_open: true # input
+    tty: true        # terminal emulation
+    command: python main.py
+    environment:
+      # point to ollama
+      - OLLAMA_HOST=http://host.docker.internal:11434
