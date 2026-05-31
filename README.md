@@ -38,7 +38,7 @@ kategoria [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob
 
 Kod: [Link od zadania](https://github.com/Dziobalonta/Scripting-Course/blob/main/03-ruby/crawler.rb)
 
-## Zadanie 3: Tetris  w Lua
+## Zadanie 4: Tetris  w Lua
 :white_check_mark: 3.0 Postawowa wersja dekstopowa z obsługą na klawiaturze - minimum 4 rodzaje klocków [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob/41ed2f3df94e6664b352c00082c5aae7da47de29/04-lua/main.lua)
 
 :white_check_mark: 3.5 Zapis i odczyt gier [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob/7b46b8b46abdfb316103fb5d0a84c8b785c1e7ce/04-lua/main.lua)
@@ -50,3 +50,22 @@ Kod: [Link od zadania](https://github.com/Dziobalonta/Scripting-Course/blob/main
 :white_check_mark: 5.0 Wersja na iOS lub Android z implementacją touch zamiast klawiatury [Link do commita](https://github.com/Dziobalonta/Scripting-Course/blob/83183020f08ee9711cca3318b808eeb1574c0625/04-lua/main.lua)
 
 Kod: [Link od zadania](https://github.com/Dziobalonta/Scripting-Course/blob/main/04-lua/main.lua)
+
+## Zadanie 5: Python LLM
+
+:white_check_mark: 3.0 Czatbot z wytrenowaną umiejętnością (poprzez prompt) obsługi conajmniej 3 sposobów sformułowania intencji (powitanie, menu, zamówienie). [Link do commita](https://github.com/Dziobalonta/Scripting-Course/tree/82e9fbe5ced13317cd6e0f3e6cd343f7aea80941/05-python)
+
+:white_check_mark: 3.5 Informacje o godzinach otwarcia i pozycjach w menu powinny być
+pobierane z pliku konfiguracyjnego (JSON/YAML) i przekazywane do
+modelu. [Link do commita](https://github.com/Dziobalonta/Scripting-Course/tree/82e9fbe5ced13317cd6e0f3e6cd343f7aea80941/05-python)
+
+:white_check_mark: 4.0 Czatbot musi przetworzyć zamówienie i potwierdzić zakupione
+posiłki, a także obsłużyć dodatkowe prośby (np. alergie, modyfikacje
+dań). Dane o alergiach, składzie, daniach ładowy z api aplikacji
+webowej napisanej we Flasku [Link do commita](https://github.com/Dziobalonta/Scripting-Course/tree/76b1adace08df04024d2a1b5ffbd339e67a75f30/05-python)
+
+:white_check_mark: 4.5 Czatbot musi potwierdzić, kiedy posiłek będzie dostępny do odbioru w restauracji (estymacja czasu na podstawie zamówienia). [Link do commita](https://github.com/Dziobalonta/Scripting-Course/tree/347f86f3f89459c6b9506b9ee488cecc3aefa1e4/05-python)
+
+:white_check_mark: 5.0 Czatbot powinien zapytać o adres dostawy i potwierdzić go, zamiast opcji odbioru osobistego, weryfikując kompletność danych adresowych. Zapisać zamówienie przez wywołanie api aplikacji we Flasku. We Flasku zapisujemy dane zamówienia w bazie. [Link do commita](https://github.com/Dziobalonta/Scripting-Course/tree/347f86f3f89459c6b9506b9ee488cecc3aefa1e4/05-python)
+
+Kod: [Link od zadania](https://github.com/Dziobalonta/Scripting-Course/tree/main/05-python)
