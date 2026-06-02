@@ -13,9 +13,9 @@ A fully functional, AI-powered restaurant assistant utilizing a local Large Lang
 2. Pull the required language model:
    ```bash
    ollama run gemma4:e2b
-```
+   ```
 3. Runing via docker
-```bash
-docker-compose up -d api
-docker-compose run bot
-```
+   ```bash
+   docker-compose up -d api
+   docker-compose run bot
+   ```
